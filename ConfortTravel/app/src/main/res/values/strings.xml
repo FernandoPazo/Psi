@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ConfortTravel</string>
+    <string name="str_start_iner">Activar inerciales</string>
+    <string name="str_values">Valores</string>
 </resources>
