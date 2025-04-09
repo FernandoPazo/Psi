@@ -22,4 +22,10 @@
         android:layout_height="wrap_content"
         android:paddingTop="16dp" />
 
+    <Button
+        android:id="@+id/saveDataButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/str_save_data" />
+
 </LinearLayout>
