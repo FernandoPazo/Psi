@@ -2,4 +2,8 @@
     <string name="app_name">ConfortTravel</string>
     <string name="str_start_iner">Activar inerciales</string>
     <string name="str_values">Valores</string>
+    <string name="str_save_data">Guardar datos en Firebase</string>
+    <string name="save_data_Firebase">Datos guardados correctamente en Firebase</string>
+    <string name="save_data_error">Error al guardar: </string>
+    <string name="no_data_error">No hay datos disponibles para guardar</string>
 </resources>

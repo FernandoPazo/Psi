@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,7 +18,13 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.FirebaseApp;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import es.udc.psi.tt.ConfortTravel.databinding.ActivityMainBinding;
+import es.udc.psi.tt.ConfortTravel.repositories.SensorRepository;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,10 +32,16 @@ public class MainActivity extends AppCompatActivity {
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private SensorEventListener sensorListener;
+    private SensorRepository sensorRepository;
+    private List<float[]> accelData = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        FirebaseApp.initializeApp(this);
+
         EdgeToEdge.enable(this);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
@@ -42,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setUI(){
+        sensorRepository = new SensorRepository();
+        Button testButton  = binding.saveDataButton;
+
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorListener = new SensorEventListener() {
@@ -53,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
                 String valores = "Acelerómetro:\nX = " + x + "\nY = " + y + "\nZ = " + z;
                 binding.textView.setText(valores);
+                accelData.add(new float[]{x, y, z});
 
             }
 
@@ -68,5 +85,26 @@ public class MainActivity extends AppCompatActivity {
                 binding.textView.setText("Lectura detenida");
             }
         });
+        testButton.setOnClickListener(v -> {
+            saveData();
+        });
+    }
+
+    private void saveData(){
+        if(accelData.isEmpty()){
+            Toast.makeText(this, getString(R.string.no_data_error),
+                           Toast.LENGTH_SHORT).show();
+        }
+        else{
+            sensorRepository.saveSensorBatch(accelData)
+            .addOnSuccessListener(aVoid -> {
+                Toast.makeText(this, getString(R.string.save_data_Firebase),
+                               Toast.LENGTH_SHORT).show();
+            })
+        .addOnFailureListener(e -> {
+            Toast.makeText(this, getString(R.string.save_data_error) + e.getMessage(),
+                           Toast.LENGTH_SHORT).show();
+        });    
+        }
     }
 }
