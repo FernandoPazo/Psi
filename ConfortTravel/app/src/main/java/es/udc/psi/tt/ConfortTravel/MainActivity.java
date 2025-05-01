@@ -10,6 +10,8 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -114,6 +116,9 @@ public class MainActivity extends AppCompatActivity {
         Button testButton  = binding.saveDataButton;
 
         binding.swInerciales.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            vib.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
+
             if (isChecked) {
                 ContextCompat.startForegroundService(this, new Intent(this, SensorService.class));
             } else {
