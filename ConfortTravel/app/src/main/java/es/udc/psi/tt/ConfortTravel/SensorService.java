@@ -18,6 +18,7 @@ public class SensorService extends Service implements SensorEventListener {
 
     private SensorManager sensorManager;
     private Sensor accelerometer;
+    private Sensor gyroscope;
 
     @Override
     public void onCreate() {
@@ -25,7 +26,10 @@ public class SensorService extends Service implements SensorEventListener {
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         if (sensorManager != null) {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+
+            gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+            sensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_UI);
         }
     }
 
@@ -55,16 +59,26 @@ public class SensorService extends Service implements SensorEventListener {
             float z = event.values[2];
 
             Intent i = new Intent(Keys.INTENT_SENSOR_DATA_TO_MAIN_ACTION);
-            //Solucion para hcer el broadcast explícito
-            //se indica que debe entregar el broadcast a los receptores dentro de nuestra aplicación
-            i.setPackage(getPackageName());
             i.putExtra(Keys.ACCELEROMETER_AXIS_X, x);
             i.putExtra(Keys.ACCELEROMETER_AXIS_Y, y);
             i.putExtra(Keys.ACCELEROMETER_AXIS_Z, z);
             sendBroadcast(i);
 
             // Aquí puedes guardar los valores o hacer cálculos
-            Log.d("SensorService", "Aceleración: x=" + x + " y=" + y + " z=" + z);
+            //Log.d("SensorService", "Aceleración: x=" + x + " y=" + y + " z=" + z);
+        }
+        else if(event.sensor.getType() == Sensor.TYPE_GYROSCOPE){
+            float gx = event.values[0];
+            float gy = event.values[1];
+            float gz = event.values[2];
+
+            Intent i = new Intent(Keys.INTENT_GYROSCOPE_DATA_TO_MAIN_ACTION);
+            i.putExtra(Keys.GYROSCOPE_AXIS_X, gx);
+            i.putExtra(Keys.GYROSCOPE_AXIS_Y, gy);
+            i.putExtra(Keys.GYROSCOPE_AXIS_Z, gz);
+            sendBroadcast(i);
+
+            //Log.d("SensorService", "Giroscopio: gx=" + gx + " gy=" + gy + " gz=" + gz);
         }
     }
 
