@@ -119,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 stopService(new Intent(this, SensorService.class));
                 binding.textView.setText(getString(R.string.stop_reading));
+                binding.gyroscopeTextView.setText(getString(R.string.stop_reading));
             }
         });
         testButton.setOnClickListener(v -> {
@@ -144,8 +145,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
         }
         else{
-            if(!accelData.isEmpty()){
-                sensorRepository.saveSensorBatch(accelData)
+           sensorRepository.saveSensorData(accelData,gyroData)
                         .addOnSuccessListener(aVoid -> {
                             Toast.makeText(this, getString(R.string.save_data_Firebase),
                                     Toast.LENGTH_SHORT).show();
@@ -154,18 +154,10 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(this, getString(R.string.save_data_error) + e.getMessage(),
                                     Toast.LENGTH_SHORT).show();
                         });
+           //Limpio las listas para que una vez le des al botón se guarden dichos datos una vez
+            // pero si le vuelves a dar no se guarden datos repetidos si no únicamente los nuevos
+                accelData.clear();
+                gyroData.clear();
             }
-            if (!gyroData.isEmpty()) {
-                sensorRepository.saveGyroscopeBatch(gyroData)
-                        .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(this, getString(R.string.save_data_Firebase),
-                                    Toast.LENGTH_SHORT).show();
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(this, getString(R.string.save_data_error) + e.getMessage(),
-                                    Toast.LENGTH_SHORT).show();
-                        });
-            }
-        }
     }
 }
