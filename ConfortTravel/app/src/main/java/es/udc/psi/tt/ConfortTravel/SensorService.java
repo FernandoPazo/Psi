@@ -59,6 +59,9 @@ public class SensorService extends Service implements SensorEventListener {
             float z = event.values[2];
 
             Intent i = new Intent(Keys.INTENT_SENSOR_DATA_TO_MAIN_ACTION);
+            //Solucion para hcer el broadcast explícito
+            //se indica que debe entregar el broadcast a los receptores dentro de nuestra aplicación
+            i.setPackage(getPackageName());
             i.putExtra(Keys.ACCELEROMETER_AXIS_X, x);
             i.putExtra(Keys.ACCELEROMETER_AXIS_Y, y);
             i.putExtra(Keys.ACCELEROMETER_AXIS_Z, z);
@@ -73,6 +76,7 @@ public class SensorService extends Service implements SensorEventListener {
             float gz = event.values[2];
 
             Intent i = new Intent(Keys.INTENT_GYROSCOPE_DATA_TO_MAIN_ACTION);
+            i.setPackage(getPackageName());
             i.putExtra(Keys.GYROSCOPE_AXIS_X, gx);
             i.putExtra(Keys.GYROSCOPE_AXIS_Y, gy);
             i.putExtra(Keys.GYROSCOPE_AXIS_Z, gz);

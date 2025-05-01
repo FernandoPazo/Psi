@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">ConfortTravel</string>
     <string name="str_start_iner">Activar inerciales</string>
-    <string name="str_values">Valores</string>
+    <string name="waiting_for_accelerometer">Esperando datos del acelerómetro…</string>
     <string name="str_save_data">Guardar datos en Firebase</string>
     <string name="save_data_Firebase">Datos guardados correctamente en Firebase</string>
     <string name="save_data_error">Error al guardar: </string>
@@ -11,5 +11,9 @@
     <string name="notification_channel_foreground_name">channel_FN1</string>
     <string name="notification_channel_foreground_desc">Canal de para la notificación foreground de medición.</string>
     <string name="accelerometer">Acelerómetro</string>
+
+    <string name="gyroscope">Giroscopio</string>
+    <string name="waiting_for_gyroscope">Esperando datos del giroscopio…</string>
+
     <string name="stop_reading">Lectura detenida.</string>
 </resources>

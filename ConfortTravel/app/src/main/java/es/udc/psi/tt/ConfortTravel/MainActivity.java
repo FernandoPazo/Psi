@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private SensorRepository sensorRepository;
     private List<float[]> accelData = new ArrayList<>();
+    private List<float[]> gyroData = new ArrayList<>();
 
     private final BroadcastReceiver sensorDataReceiver = new BroadcastReceiver() {
         @Override
@@ -48,6 +50,21 @@ public class MainActivity extends AppCompatActivity {
                 String valores = getString(R.string.accelerometer) + ":\nX = " + x + "\nY = " + y + "\nZ = " + z;
                 binding.textView.setText(valores);
                 accelData.add(new float[]{x, y, z});
+            }
+        }
+    };
+
+    private final BroadcastReceiver gyroscopeDataReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Keys.INTENT_GYROSCOPE_DATA_TO_MAIN_ACTION.equals(intent.getAction())) {
+                float gx = intent.getFloatExtra(Keys.GYROSCOPE_AXIS_X, 0);
+                float gy = intent.getFloatExtra(Keys.GYROSCOPE_AXIS_Y, 0);
+                float gz = intent.getFloatExtra(Keys.GYROSCOPE_AXIS_Z, 0);
+
+                String valores = getString(R.string.gyroscope) + ":\nX = " + gx + "\nY = " + gy + "\nZ = " + gz;
+                binding.gyroscopeTextView.setText(valores);
+                gyroData.add(new float[]{gx, gy, gz});
             }
         }
     };
@@ -79,6 +96,9 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(Keys.INTENT_SENSOR_DATA_TO_MAIN_ACTION);
         registerReceiver(sensorDataReceiver, filter, RECEIVER_NOT_EXPORTED);
 
+        IntentFilter gyroFilter = new IntentFilter(Keys.INTENT_GYROSCOPE_DATA_TO_MAIN_ACTION);
+        registerReceiver(gyroscopeDataReceiver, gyroFilter, RECEIVER_NOT_EXPORTED);
+
         setUI();
     }
 
@@ -86,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(sensorDataReceiver);
+        unregisterReceiver(gyroscopeDataReceiver);
     }
 
     public void setUI(){
@@ -118,20 +139,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveData(){
-        if(accelData.isEmpty()){
+        if(accelData.isEmpty() && gyroData.isEmpty()){
             Toast.makeText(this, getString(R.string.no_data_error),
-                           Toast.LENGTH_SHORT).show();
+                    Toast.LENGTH_SHORT).show();
         }
         else{
-            sensorRepository.saveSensorBatch(accelData)
-            .addOnSuccessListener(aVoid -> {
-                Toast.makeText(this, getString(R.string.save_data_Firebase),
-                               Toast.LENGTH_SHORT).show();
-            })
-        .addOnFailureListener(e -> {
-            Toast.makeText(this, getString(R.string.save_data_error) + e.getMessage(),
-                           Toast.LENGTH_SHORT).show();
-        });    
+            if(!accelData.isEmpty()){
+                sensorRepository.saveSensorBatch(accelData)
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(this, getString(R.string.save_data_Firebase),
+                                    Toast.LENGTH_SHORT).show();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(this, getString(R.string.save_data_error) + e.getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+                        });
+            }
+            if (!gyroData.isEmpty()) {
+                sensorRepository.saveGyroscopeBatch(gyroData)
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(this, getString(R.string.save_data_Firebase),
+                                    Toast.LENGTH_SHORT).show();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(this, getString(R.string.save_data_error) + e.getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+                        });
+            }
         }
     }
 }
