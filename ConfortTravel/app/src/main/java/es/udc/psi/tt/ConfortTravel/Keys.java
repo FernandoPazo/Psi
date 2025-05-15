@@ -29,4 +29,7 @@ public class Keys {
      */
     public static String INTENT_SENSOR_DATA_TO_MAIN_ACTION = "es.udc.psi.tt.intents.action.SENSOR_DATA_TO_MAIN";
     public static String INTENT_GYROSCOPE_DATA_TO_MAIN_ACTION = "es.udc.psi.tt.intents.action.GYROSCOPE_DATA_TO_MAIN";
+    public static final String INTENT_SENSOR_STATE_CHANGED = "es.udc.psi.tt.ConfortTravel.SENSOR_STATE_CHANGED";
+    public static final String IS_MEASURING = "isMeasuring";
+    public static final String ACTION_TOGGLE_MEASUREMENT = "es.udc.psi.tt.ConfortTravel.ACTION_TOGGLE_MEASUREMENT";
 }

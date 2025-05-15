@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -70,6 +71,15 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+    private final BroadcastReceiver sensorStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Keys.INTENT_SENSOR_STATE_CHANGED.equals(intent.getAction())) {
+                boolean isMeasuring = intent.getBooleanExtra(Keys.IS_MEASURING, false);
+                binding.swInerciales.setChecked(isMeasuring); // Actualiza el Switch
+            }
+        }
+    };
 
 
 
@@ -101,6 +111,11 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter gyroFilter = new IntentFilter(Keys.INTENT_GYROSCOPE_DATA_TO_MAIN_ACTION);
         registerReceiver(gyroscopeDataReceiver, gyroFilter, RECEIVER_NOT_EXPORTED);
 
+        SharedPreferences prefs = getSharedPreferences("SensorPrefs", MODE_PRIVATE);
+        if (!prefs.contains("isMeasuring")) {
+            prefs.edit().putBoolean("isMeasuring", false).apply();
+        }
+
         setUI();
     }
 
@@ -109,13 +124,37 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         unregisterReceiver(sensorDataReceiver);
         unregisterReceiver(gyroscopeDataReceiver);
+        unregisterReceiver(sensorStateReceiver);
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter filter = new IntentFilter(Keys.INTENT_SENSOR_STATE_CHANGED);
+        registerReceiver(sensorStateReceiver, filter, RECEIVER_NOT_EXPORTED);
+
+        boolean isMeasuring = getSharedPreferences("SensorPrefs", MODE_PRIVATE)
+                .getBoolean("isMeasuring", false);
+        binding.swInerciales.setChecked(isMeasuring);
+    }
+
 
     public void setUI(){
         sensorRepository = new SensorRepository();
         Button testButton  = binding.saveDataButton;
 
+        binding.swInerciales.setOnCheckedChangeListener(null); // Limpia cualquier listener anterior
+
+        // Sincroniza el estado inicial
+        boolean isMeasuring = getSharedPreferences("SensorPrefs", MODE_PRIVATE)
+                .getBoolean("isMeasuring", false);
+        binding.swInerciales.setChecked(isMeasuring);
+
         binding.swInerciales.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            SharedPreferences prefs = getSharedPreferences("SensorPrefs", MODE_PRIVATE);
+            prefs.edit().putBoolean("isMeasuring", isChecked).apply();
+
             Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
             vib.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
 

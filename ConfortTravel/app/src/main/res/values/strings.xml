@@ -7,10 +7,14 @@
     <string name="save_data_error">Error al guardar: </string>
     <string name="no_data_error">No hay datos disponibles para guardar</string>
     <string name="data_gathering">ConfortManager está recogiendo los datos del sensor.</string>
+    <string name="data_paused">ConfortManager está apagado y la medición pausada.</string>
     <string name="measuring">Realizando medición.</string>
     <string name="notification_channel_foreground_name">channel_FN1</string>
     <string name="notification_channel_foreground_desc">Canal de para la notificación foreground de medición.</string>
     <string name="accelerometer">Acelerómetro</string>
+    <string name="str_pause">Pausar</string>
+    <string name="str_resume">Reanudar</string>
+
 
     <string name="gyroscope">Giroscopio</string>
     <string name="waiting_for_gyroscope">Esperando datos del giroscopio…</string>
