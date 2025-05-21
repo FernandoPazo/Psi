@@ -179,6 +179,13 @@ public class MainActivity extends AppCompatActivity {
             vib.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
 
             if (isChecked) {
+                if (dataSet != null) {
+                    dataSet.clear();
+                    lineData.notifyDataChanged();
+                    lineChart.notifyDataSetChanged();
+                    lineChart.invalidate();
+                }
+                accelData.clear();
                 ContextCompat.startForegroundService(this, new Intent(this, SensorService.class));
             } else {
                 stopService(new Intent(this, SensorService.class));

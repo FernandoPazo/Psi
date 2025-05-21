@@ -98,7 +98,7 @@ public class SensorService extends Service implements SensorEventListener {
                         raw.clear(); // limpiamos para la siguiente ventana de 6 segundos
                     }
                 }
-            }, 0, 6, TimeUnit.SECONDS);
+            }, 0, 1, TimeUnit.SECONDS);
         } else {
             scheduler.shutdown();
 
@@ -135,18 +135,6 @@ public class SensorService extends Service implements SensorEventListener {
 
             raw.add(magnitude);
 
-//            Intent i = new Intent(Keys.INTENT_SENSOR_DATA_TO_MAIN_ACTION);
-//            //Solucion para hacer el broadcast explícito
-//            //se indica que debe entregar el broadcast a los receptores dentro de nuestra aplicación
-//            i.setPackage(getPackageName());
-//            i.putExtra(Keys.ACCELEROMETER_MAGNITUDE, magnitude);
-//            i.putExtra(Keys.ACCELEROMETER_AXIS_X, x);
-//            i.putExtra(Keys.ACCELEROMETER_AXIS_Y, y);
-//            i.putExtra(Keys.ACCELEROMETER_AXIS_Z, z);
-//            sendBroadcast(i);
-
-            // Aquí puedes guardar los valores o hacer cálculos
-            //Log.d("SensorService", "Aceleración: x=" + x + " y=" + y + " z=" + z);
         }
         else if(event.sensor.getType() == Sensor.TYPE_GYROSCOPE){
             float gx = event.values[0];
@@ -160,7 +148,6 @@ public class SensorService extends Service implements SensorEventListener {
             i.putExtra(Keys.GYROSCOPE_AXIS_Z, gz);
             sendBroadcast(i);
 
-            //Log.d("SensorService", "Giroscopio: gx=" + gx + " gy=" + gy + " gz=" + gz);
         }
     }
 

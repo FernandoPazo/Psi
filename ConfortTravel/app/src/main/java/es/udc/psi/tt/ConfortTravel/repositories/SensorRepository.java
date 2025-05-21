@@ -55,20 +55,17 @@ public class SensorRepository {
         //Colección dedicada a los datos del acelerómetro
         if (!accelData.isEmpty()) {
             DatabaseReference accelRef = sessionRef.child("accelerometer_data");
-
-            for (int i = 0; i < accelData.size(); i++) {
-                float data = accelData.get(i);
-
-                Map<String, Object> readingMap = new HashMap<>();
-                readingMap.put("timestamp", new Date().getTime());
-                readingMap.put("LastMeasurement", data);
-
-                accelRef.child("reading_" + i).setValue(readingMap);
+            Map<String, Object> readingMap = new HashMap<>();
+            readingMap.put("Measurement", accelData);
+            float sum = 0f;
+            for (Float m : accelData) {
+                sum += m;
             }
+            readingMap.put("Mean", sum / accelData.size());
+            accelRef.child("reading").setValue(readingMap);
 
-            //Número de lecturas totales
             sessionRef.child("info").child("accelerometer_readings").
-                    setValue(accelData.size());
+                    setValue(1);
         }
 
         //Colección dedicada a los datos del giroscopio
