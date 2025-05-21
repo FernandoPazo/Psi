@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "723677153870",
+    "firebase_url": "https://comforttravel-f1738-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "comforttravel-f1738",
+    "storage_bucket": "comforttravel-f1738.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:723677153870:android:2d5b207aa2c127c6ec511f",
+        "android_client_info": {
+          "package_name": "es.udc.psi.tt.ConfortTravel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZcgpEWt35eFCdtBiGO9fqSual_J1UFxg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

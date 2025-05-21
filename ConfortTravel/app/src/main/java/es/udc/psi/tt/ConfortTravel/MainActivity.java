@@ -7,9 +7,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -36,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private SensorRepository sensorRepository;
     private List<float[]> accelData = new ArrayList<>();
+    private List<float[]> gyroData = new ArrayList<>();
 
     private final BroadcastReceiver sensorDataReceiver = new BroadcastReceiver() {
         @Override
@@ -48,6 +53,30 @@ public class MainActivity extends AppCompatActivity {
                 String valores = getString(R.string.accelerometer) + ":\nX = " + x + "\nY = " + y + "\nZ = " + z;
                 binding.textView.setText(valores);
                 accelData.add(new float[]{x, y, z});
+            }
+        }
+    };
+
+    private final BroadcastReceiver gyroscopeDataReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Keys.INTENT_GYROSCOPE_DATA_TO_MAIN_ACTION.equals(intent.getAction())) {
+                float gx = intent.getFloatExtra(Keys.GYROSCOPE_AXIS_X, 0);
+                float gy = intent.getFloatExtra(Keys.GYROSCOPE_AXIS_Y, 0);
+                float gz = intent.getFloatExtra(Keys.GYROSCOPE_AXIS_Z, 0);
+
+                String valores = getString(R.string.gyroscope) + ":\nX = " + gx + "\nY = " + gy + "\nZ = " + gz;
+                binding.gyroscopeTextView.setText(valores);
+                gyroData.add(new float[]{gx, gy, gz});
+            }
+        }
+    };
+    private final BroadcastReceiver sensorStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Keys.INTENT_SENSOR_STATE_CHANGED.equals(intent.getAction())) {
+                boolean isMeasuring = intent.getBooleanExtra(Keys.IS_MEASURING, false);
+                binding.swInerciales.setChecked(isMeasuring); // Actualiza el Switch
             }
         }
     };
@@ -79,6 +108,14 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(Keys.INTENT_SENSOR_DATA_TO_MAIN_ACTION);
         registerReceiver(sensorDataReceiver, filter, RECEIVER_NOT_EXPORTED);
 
+        IntentFilter gyroFilter = new IntentFilter(Keys.INTENT_GYROSCOPE_DATA_TO_MAIN_ACTION);
+        registerReceiver(gyroscopeDataReceiver, gyroFilter, RECEIVER_NOT_EXPORTED);
+
+        SharedPreferences prefs = getSharedPreferences("SensorPrefs", MODE_PRIVATE);
+        if (!prefs.contains("isMeasuring")) {
+            prefs.edit().putBoolean("isMeasuring", false).apply();
+        }
+
         setUI();
     }
 
@@ -86,18 +123,47 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(sensorDataReceiver);
+        unregisterReceiver(gyroscopeDataReceiver);
+        unregisterReceiver(sensorStateReceiver);
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter filter = new IntentFilter(Keys.INTENT_SENSOR_STATE_CHANGED);
+        registerReceiver(sensorStateReceiver, filter, RECEIVER_NOT_EXPORTED);
+
+        boolean isMeasuring = getSharedPreferences("SensorPrefs", MODE_PRIVATE)
+                .getBoolean("isMeasuring", false);
+        binding.swInerciales.setChecked(isMeasuring);
+    }
+
 
     public void setUI(){
         sensorRepository = new SensorRepository();
         Button testButton  = binding.saveDataButton;
 
+        binding.swInerciales.setOnCheckedChangeListener(null); // Limpia cualquier listener anterior
+
+        // Sincroniza el estado inicial
+        boolean isMeasuring = getSharedPreferences("SensorPrefs", MODE_PRIVATE)
+                .getBoolean("isMeasuring", false);
+        binding.swInerciales.setChecked(isMeasuring);
+
         binding.swInerciales.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            SharedPreferences prefs = getSharedPreferences("SensorPrefs", MODE_PRIVATE);
+            prefs.edit().putBoolean("isMeasuring", isChecked).apply();
+
+            Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            vib.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
+
             if (isChecked) {
                 ContextCompat.startForegroundService(this, new Intent(this, SensorService.class));
             } else {
                 stopService(new Intent(this, SensorService.class));
                 binding.textView.setText(getString(R.string.stop_reading));
+                binding.gyroscopeTextView.setText(getString(R.string.stop_reading));
             }
         });
         testButton.setOnClickListener(v -> {
@@ -118,20 +184,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveData(){
-        if(accelData.isEmpty()){
+        if(accelData.isEmpty() && gyroData.isEmpty()){
             Toast.makeText(this, getString(R.string.no_data_error),
-                           Toast.LENGTH_SHORT).show();
+                    Toast.LENGTH_SHORT).show();
         }
         else{
-            sensorRepository.saveSensorBatch(accelData)
-            .addOnSuccessListener(aVoid -> {
-                Toast.makeText(this, getString(R.string.save_data_Firebase),
-                               Toast.LENGTH_SHORT).show();
-            })
-        .addOnFailureListener(e -> {
-            Toast.makeText(this, getString(R.string.save_data_error) + e.getMessage(),
-                           Toast.LENGTH_SHORT).show();
-        });    
-        }
+           sensorRepository.saveSensorData(accelData,gyroData)
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(this, getString(R.string.save_data_Firebase),
+                                    Toast.LENGTH_SHORT).show();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(this, getString(R.string.save_data_error) + e.getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+                        });
+           //Limpio las listas para que una vez le des al botón se guarden dichos datos una vez
+            // pero si le vuelves a dar no se guarden datos repetidos si no únicamente los nuevos
+                accelData.clear();
+                gyroData.clear();
+            }
     }
 }
