@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
@@ -31,6 +32,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.PreferenceManager;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.google.firebase.FirebaseApp;
 
 import java.util.ArrayList;
@@ -43,20 +48,30 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private SensorRepository sensorRepository;
-    private List<float[]> accelData = new ArrayList<>();
+    private List<Float> accelData = new ArrayList<>();
     private List<float[]> gyroData = new ArrayList<>();
+
+    LineChart lineChart;
+    LineDataSet dataSet;
+    LineData lineData;
 
     private final BroadcastReceiver sensorDataReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Keys.INTENT_SENSOR_DATA_TO_MAIN_ACTION.equals(intent.getAction())) {
-                float x = intent.getFloatExtra(Keys.ACCELEROMETER_AXIS_X, 0);
-                float y = intent.getFloatExtra(Keys.ACCELEROMETER_AXIS_Y, 0);
-                float z = intent.getFloatExtra(Keys.ACCELEROMETER_AXIS_Z, 0);
+                float measurement = intent.getFloatExtra(Keys.SEND_COMPLETE_MEASUREMENT, 0);
 
-                String valores = getString(R.string.accelerometer) + ":\nX = " + x + "\nY = " + y + "\nZ = " + z;
-                binding.textView.setText(valores);
-                accelData.add(new float[]{x, y, z});
+                // Añadir el nuevo punto al gráfico
+                Entry entry = new Entry(dataSet.getEntryCount(), measurement);
+                dataSet.addEntry(entry);
+                dataSet.notifyDataSetChanged();
+                lineData.notifyDataChanged();
+                lineChart.notifyDataSetChanged();
+                lineChart.invalidate(); // actualiza el gráfico
+
+                String value = getString(R.string.accelerometer) + ":\nLast measurement = " + measurement + "\n";
+                binding.textView.setText(value);
+                accelData.add(measurement);
             }
         }
     };
@@ -171,9 +186,32 @@ public class MainActivity extends AppCompatActivity {
                 binding.gyroscopeTextView.setText(getString(R.string.stop_reading));
             }
         });
+
+        initializeLineChart(Color.BLUE, Color.BLUE, LineDataSet.Mode.CUBIC_BEZIER, 2f);
+
         testButton.setOnClickListener(v -> {
             saveData();
         });
+    }
+
+    private void initializeLineChart(int graphColor, int textColor, LineDataSet.Mode graphType, float lineWidth) {
+        lineChart = findViewById(R.id.lineChart);
+
+        // Inicializar el dataSet
+        dataSet = new LineDataSet(new ArrayList<>(), getString(R.string.measurements));
+        dataSet.setColor(graphColor);
+        dataSet.setValueTextColor(textColor);
+        dataSet.setLineWidth(lineWidth);
+        dataSet.setDrawCircles(false);
+        dataSet.setMode(graphType); // opcional: suavizado
+
+        // Inicializa el lineData
+        lineData = new LineData(dataSet);
+        lineChart.setData(lineData);
+
+        lineChart.getDescription().setText(getString(R.string.measure_each_6s));
+        lineChart.getXAxis().setDrawLabels(false); // por ejemplo
+        lineChart.invalidate();
     }
 
     private void createNotificationChannel() {
@@ -194,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
         }
         else{
-           sensorRepository.saveSensorData(accelData,gyroData)
+           sensorRepository.saveSensorData(accelData, gyroData)
                         .addOnSuccessListener(aVoid -> {
                             Toast.makeText(this, getString(R.string.save_data_Firebase),
                                     Toast.LENGTH_SHORT).show();

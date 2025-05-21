@@ -42,7 +42,7 @@ public class SensorRepository {
         return dateFormat.format(date);
     }
 
-    public Task<Void> saveSensorData(List<float[]> accelData, List<float[]> gyroData) {
+    public Task<Void> saveSensorData(List<Float> accelData, List<float[]> gyroData) {
         String sessionId = generateSessionId();
         DatabaseReference sessionRef = firebaseDbRef.child(sessionId);
         String dateNow = formattedDate(new Date());
@@ -57,13 +57,11 @@ public class SensorRepository {
             DatabaseReference accelRef = sessionRef.child("accelerometer_data");
 
             for (int i = 0; i < accelData.size(); i++) {
-                float[] data = accelData.get(i);
+                float data = accelData.get(i);
 
                 Map<String, Object> readingMap = new HashMap<>();
                 readingMap.put("timestamp", new Date().getTime());
-                readingMap.put("x", data[0]);
-                readingMap.put("y", data[1]);
-                readingMap.put("z", data[2]);
+                readingMap.put("LastMeasurement", data);
 
                 accelRef.child("reading_" + i).setValue(readingMap);
             }

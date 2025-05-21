@@ -21,6 +21,8 @@
 
     <string name="stop_reading">Lectura detenida.</string>
     <string name="str_settings">Ajustes</string>
+    <string name="measurements">Mediciones.</string>
+    <string name="measure_each_6s">Actualización cada 6s</string>
 
     <string-array name="theme_names">
         <item>Claro</item>

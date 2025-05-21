@@ -14,12 +14,22 @@ import android.os.IBinder;
 import android.util.Log;
 import androidx.core.app.NotificationCompat;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 
 public class SensorService extends Service implements SensorEventListener {
 
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private Sensor gyroscope;
+    private ScheduledExecutorService scheduler;
+
+    private List<Float> raw = new ArrayList<>();
+    private List<Float> measurement = new ArrayList<>();
 
 
 
@@ -28,7 +38,7 @@ public class SensorService extends Service implements SensorEventListener {
         super.onCreate();
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         if (sensorManager != null) {
-            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
             sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
 
             gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
@@ -61,11 +71,39 @@ public class SensorService extends Service implements SensorEventListener {
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.notify(Keys.FOREGROUND_NOTIFICATION_ID, notification);
 
+
             return START_STICKY;
         }
 
+        Log.d("Thread", "¡HOLA!");
+
+
         // Primer inicio
         setMeasuringState(true);
+
+        if (getMeasuringState()) {
+            if (scheduler == null || scheduler.isShutdown()) {
+                scheduler = Executors.newSingleThreadScheduledExecutor();
+            }
+            scheduler.scheduleWithFixedDelay(new Runnable() {
+                @Override
+                public void run() {
+                    if (!raw.isEmpty()) {
+                        float mean = calculateMeanFromRaw(raw);
+                        measurement.add(mean);
+                        Intent i = new Intent(Keys.INTENT_SENSOR_DATA_TO_MAIN_ACTION);
+                        i.setPackage(getPackageName());
+                        i.putExtra(Keys.SEND_COMPLETE_MEASUREMENT, mean);
+                        sendBroadcast(i);
+                        raw.clear(); // limpiamos para la siguiente ventana de 6 segundos
+                    }
+                }
+            }, 0, 6, TimeUnit.SECONDS);
+        } else {
+            scheduler.shutdown();
+
+        }
+
         Notification notification = createNotification(true);
         startForeground(Keys.FOREGROUND_NOTIFICATION_ID, notification);
         return START_STICKY;
@@ -75,6 +113,9 @@ public class SensorService extends Service implements SensorEventListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (scheduler != null && !scheduler.isShutdown()) {
+            scheduler.shutdown();
+        }
         sensorManager.unregisterListener(this);
     }
 
@@ -85,19 +126,24 @@ public class SensorService extends Service implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
             float x = event.values[0];
             float y = event.values[1];
             float z = event.values[2];
 
-            Intent i = new Intent(Keys.INTENT_SENSOR_DATA_TO_MAIN_ACTION);
-            //Solucion para hcer el broadcast explícito
-            //se indica que debe entregar el broadcast a los receptores dentro de nuestra aplicación
-            i.setPackage(getPackageName());
-            i.putExtra(Keys.ACCELEROMETER_AXIS_X, x);
-            i.putExtra(Keys.ACCELEROMETER_AXIS_Y, y);
-            i.putExtra(Keys.ACCELEROMETER_AXIS_Z, z);
-            sendBroadcast(i);
+            float magnitude = (float) Math.sqrt(x * x + y * y + z * z);
+
+            raw.add(magnitude);
+
+//            Intent i = new Intent(Keys.INTENT_SENSOR_DATA_TO_MAIN_ACTION);
+//            //Solucion para hacer el broadcast explícito
+//            //se indica que debe entregar el broadcast a los receptores dentro de nuestra aplicación
+//            i.setPackage(getPackageName());
+//            i.putExtra(Keys.ACCELEROMETER_MAGNITUDE, magnitude);
+//            i.putExtra(Keys.ACCELEROMETER_AXIS_X, x);
+//            i.putExtra(Keys.ACCELEROMETER_AXIS_Y, y);
+//            i.putExtra(Keys.ACCELEROMETER_AXIS_Z, z);
+//            sendBroadcast(i);
 
             // Aquí puedes guardar los valores o hacer cálculos
             //Log.d("SensorService", "Aceleración: x=" + x + " y=" + y + " z=" + z);
@@ -116,6 +162,20 @@ public class SensorService extends Service implements SensorEventListener {
 
             //Log.d("SensorService", "Giroscopio: gx=" + gx + " gy=" + gy + " gz=" + gz);
         }
+    }
+
+    private float calculateMeanFromRaw(List<Float> raw) {
+        if (raw == null || raw.isEmpty()) {
+            return 0f;
+        }
+
+        float sum = 0f;
+        for (Float m : raw) {
+            sum += m;
+        }
+
+        return sum / raw.size();
+
     }
 
     @Override

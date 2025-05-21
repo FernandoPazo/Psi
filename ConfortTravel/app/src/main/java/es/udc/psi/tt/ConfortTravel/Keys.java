@@ -13,7 +13,10 @@ public class Keys {
     /**
      * SENSORES.
      */
+
     /* ACELERÓMETRO */
+
+    public static String ACCELEROMETER_MAGNITUDE = "es.udc.psi.tt.accelerometer.magnitude";
     public static String ACCELEROMETER_AXIS_X = "es.udc.psi.tt.accelerometer.axis.x";
     public static String ACCELEROMETER_AXIS_Y = "es.udc.psi.tt.accelerometer.axis.y";
     public static String ACCELEROMETER_AXIS_Z = "es.udc.psi.tt.accelerometer.axis.z";
@@ -32,4 +35,5 @@ public class Keys {
     public static final String INTENT_SENSOR_STATE_CHANGED = "es.udc.psi.tt.ConfortTravel.SENSOR_STATE_CHANGED";
     public static final String IS_MEASURING = "isMeasuring";
     public static final String ACTION_TOGGLE_MEASUREMENT = "es.udc.psi.tt.ConfortTravel.ACTION_TOGGLE_MEASUREMENT";
+    public static final String SEND_COMPLETE_MEASUREMENT = "es.udc.psi.tt.ConfortTravel.SEND_COMPLETE_MEASUEREMT";
 }
