@@ -20,4 +20,17 @@
     <string name="waiting_for_gyroscope">Esperando datos del giroscopio…</string>
 
     <string name="stop_reading">Lectura detenida.</string>
+    <string name="str_settings">Ajustes</string>
+
+    <string-array name="theme_names">
+        <item>Claro</item>
+        <item>Oscuro</item>
+        <item>Predeterminado del sistema</item>
+    </string-array>
+    <string-array name="theme_values">
+        <item>light</item>
+        <item>dark</item>
+        <item>system</item>
+    </string-array>
+
 </resources>
