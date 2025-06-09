@@ -42,7 +42,7 @@ public class SensorRepository {
         return dateFormat.format(date);
     }
 
-    public Task<Void> saveSensorData(List<Float> accelData, List<float[]> gyroData) {
+    public Task<Void> saveSensorData(List<Float> accelData, List<float[]> gyroData, String username, String valoracion) {
         String sessionId = generateSessionId();
         DatabaseReference sessionRef = firebaseDbRef.child(sessionId);
         String dateNow = formattedDate(new Date());
@@ -50,13 +50,17 @@ public class SensorRepository {
         Map<String, Object> sessionInfo = new HashMap<>();
         sessionInfo.put("date", dateNow);
         sessionInfo.put("device_model", Build.MODEL);
+        sessionInfo.put("username", username);
+        sessionInfo.put("valoracion", valoracion);
+
         sessionRef.child("info").setValue(sessionInfo);
 
-        //Colección dedicada a los datos del acelerómetro
+        // Colección dedicada a los datos del acelerómetro
         if (!accelData.isEmpty()) {
             DatabaseReference accelRef = sessionRef.child("accelerometer_data");
             Map<String, Object> readingMap = new HashMap<>();
             readingMap.put("Measurement", accelData);
+
             float sum = 0f;
             for (Float m : accelData) {
                 sum += m;
@@ -64,11 +68,11 @@ public class SensorRepository {
             readingMap.put("Mean", sum / accelData.size());
             accelRef.child("reading").setValue(readingMap);
 
-            sessionRef.child("info").child("accelerometer_readings").
-                    setValue(1);
+            sessionRef.child("info").child("accelerometer_readings")
+                    .setValue(1);
         }
 
-        //Colección dedicada a los datos del giroscopio
+        // Colección dedicada a los datos del giroscopio
         if (!gyroData.isEmpty()) {
             DatabaseReference gyroRef = sessionRef.child("gyroscope_data");
 
@@ -84,9 +88,11 @@ public class SensorRepository {
                 gyroRef.child("reading_" + i).setValue(readingMap);
             }
 
-            sessionRef.child("info").child("gyroscope_readings").setValue(gyroData.size());
+            sessionRef.child("info").child("gyroscope_readings")
+                    .setValue(gyroData.size());
         }
 
         return sessionRef.child("info").child("completed").setValue(true);
     }
+
 }

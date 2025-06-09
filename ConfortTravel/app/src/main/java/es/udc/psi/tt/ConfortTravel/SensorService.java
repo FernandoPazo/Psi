@@ -213,19 +213,6 @@ public class SensorService extends Service implements SensorEventListener {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     private NotificationCompat.Action createPauseOnlyAction() {
         Intent toggleIntent = new Intent(this, SensorService.class);
         toggleIntent.setAction(Keys.ACTION_TOGGLE_MEASUREMENT);

@@ -11,7 +11,7 @@
         android:key="username"
         android:title="Nombre de usuario"
         android:dialogTitle="Escribe tu nombre"
-        android:defaultValue="Usuario" />
+        android:defaultValue="Anónimo" />
 
     <ListPreference
         android:key="theme"

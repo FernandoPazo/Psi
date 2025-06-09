@@ -19,10 +19,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
@@ -31,12 +33,18 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -157,12 +165,13 @@ public class MainActivity extends AppCompatActivity {
         boolean isMeasuring = getSharedPreferences("SensorPrefs", MODE_PRIVATE)
                 .getBoolean("isMeasuring", false);
         binding.swInerciales.setChecked(isMeasuring);
+        loadValoraciones();
     }
 
 
     public void setUI(){
         sensorRepository = new SensorRepository();
-        Button testButton  = binding.saveDataButton;
+        Button saveButton  = binding.saveDataButton;
 
         binding.swInerciales.setOnCheckedChangeListener(null); // Limpia cualquier listener anterior
 
@@ -196,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
 
         initializeLineChart(Color.BLUE, Color.BLUE, LineDataSet.Mode.CUBIC_BEZIER, 2f);
 
-        testButton.setOnClickListener(v -> {
+        saveButton.setOnClickListener(v -> {
             saveData();
         });
     }
@@ -233,27 +242,46 @@ public class MainActivity extends AppCompatActivity {
         notifManager.createNotificationChannel(channel);
     }
 
-    private void saveData(){
-        if(accelData.isEmpty() && gyroData.isEmpty()){
+    private void saveData() {
+        if (accelData.isEmpty() && gyroData.isEmpty()) {
             Toast.makeText(this, getString(R.string.no_data_error),
                     Toast.LENGTH_SHORT).show();
+            return;
         }
-        else{
-           sensorRepository.saveSensorData(accelData, gyroData)
-                        .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(this, getString(R.string.save_data_Firebase),
-                                    Toast.LENGTH_SHORT).show();
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(this, getString(R.string.save_data_error) + e.getMessage(),
-                                    Toast.LENGTH_SHORT).show();
-                        });
-           //Limpio las listas para que una vez le des al botón se guarden dichos datos una vez
-            // pero si le vuelves a dar no se guarden datos repetidos si no únicamente los nuevos
-                accelData.clear();
-                gyroData.clear();
-            }
+
+        // Crear EditText para la valoración
+        EditText input = new EditText(this);
+        input.setHint(R.string.str_valorate);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.str_save_data)
+                .setMessage(R.string.str_int_valorate)
+                .setView(input)
+                .setPositiveButton(R.string.str_save, (dialog, which) -> {
+                    String valoracion = input.getText().toString();
+
+                    // Obtener nombre de usuario
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                    String username = prefs.getString("username", "anónimo");
+
+                    // Guardar en Firebase
+                    sensorRepository.saveSensorData(accelData, gyroData, username, valoracion)
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(this, getString(R.string.save_data_Firebase),
+                                        Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this, getString(R.string.save_data_error) + e.getMessage(),
+                                        Toast.LENGTH_SHORT).show();
+                            });
+
+                    accelData.clear();
+                    gyroData.clear();
+                })
+                .setNegativeButton(R.string.str_cancel, null)
+                .show();
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -290,5 +318,46 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
     }
+
+    private void loadValoraciones() {
+        RecyclerView recyclerView = binding.recyclerView;
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        List<Valoracion> valoracionesList = new ArrayList<>();
+
+        FirebaseDatabase.getInstance().getReference("sensor_data")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        for (DataSnapshot session : snapshot.getChildren()) {
+                            DataSnapshot infoSnapshot = session.child("info");
+
+                            String username = infoSnapshot.child("username").getValue(String.class);
+
+                            Object valoracionObj = infoSnapshot.child("valoracion").getValue();
+                            String valoracion = valoracionObj != null ? valoracionObj.toString() : null;
+
+                            Object dateObj = infoSnapshot.child("date").getValue();
+                            String date = dateObj != null ? dateObj.toString() : null;
+
+
+                            if (username != null && valoracion != null && date != null) {
+                                valoracionesList.add(new Valoracion(username, valoracion, date));
+                            }
+                        }
+
+                        ValoracionAdapter adapter = new ValoracionAdapter(valoracionesList, MainActivity.this);
+                        recyclerView.setAdapter(adapter);
+                    }
+
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        Toast.makeText(MainActivity.this, R.string.err_valoration_load, Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+
+
 
 }
