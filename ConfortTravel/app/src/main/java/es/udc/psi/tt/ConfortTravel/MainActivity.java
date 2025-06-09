@@ -33,8 +33,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.PreferenceManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
@@ -165,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
         boolean isMeasuring = getSharedPreferences("SensorPrefs", MODE_PRIVATE)
                 .getBoolean("isMeasuring", false);
         binding.swInerciales.setChecked(isMeasuring);
-        loadValoraciones();
     }
 
 
@@ -324,46 +321,4 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
     }
-
-    private void loadValoraciones() {
-        RecyclerView recyclerView = binding.recyclerView;
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        List<Valoracion> valoracionesList = new ArrayList<>();
-
-        FirebaseDatabase.getInstance().getReference("sensor_data")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        for (DataSnapshot session : snapshot.getChildren()) {
-                            DataSnapshot infoSnapshot = session.child("info");
-
-                            String username = infoSnapshot.child("username").getValue(String.class);
-
-                            Object valoracionObj = infoSnapshot.child("valoracion").getValue();
-                            String valoracion = valoracionObj != null ? valoracionObj.toString() : null;
-
-                            Object dateObj = infoSnapshot.child("date").getValue();
-                            String date = dateObj != null ? dateObj.toString() : null;
-
-
-                            if (username != null && valoracion != null && date != null) {
-                                valoracionesList.add(new Valoracion(username, valoracion, date));
-                            }
-                        }
-
-                        ValoracionAdapter adapter = new ValoracionAdapter(valoracionesList, MainActivity.this);
-                        recyclerView.setAdapter(adapter);
-                    }
-
-
-                    @Override
-                    public void onCancelled(DatabaseError error) {
-                        Toast.makeText(MainActivity.this, R.string.err_valoration_load, Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-
-
-
 }
