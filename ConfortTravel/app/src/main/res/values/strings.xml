@@ -15,7 +15,7 @@
     <string name="str_pause">Pausar</string>
     <string name="str_resume">Reanudar</string>
     <string name="str_save">Guardar datos</string>
-
+    <string name="str_ratings">Valoraciones</string>
 
     <string name="gyroscope">Giroscopio</string>
     <string name="waiting_for_gyroscope">Esperando datos del giroscopio…</string>
