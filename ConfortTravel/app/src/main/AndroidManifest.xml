@@ -38,6 +38,7 @@
         </activity>
 
         <activity android:name=".SettingsActivity" />
+        <activity android:name=".RatingsActivity" android:theme="@style/Theme.ConfortTravel.NoActionBar" />
 
     </application>
 

@@ -16,10 +16,16 @@ public class ValoracionAdapter extends RecyclerView.Adapter<ValoracionAdapter.Va
 
     private final List<Valoracion> valoraciones;
     private final Context context;
+    private final OnRatingClickListener listener;
 
-    public ValoracionAdapter(List<Valoracion> valoraciones, Context context) {
+    public ValoracionAdapter(List<Valoracion> valoraciones, Context context, OnRatingClickListener listener) {
         this.valoraciones = valoraciones;
         this.context = context;
+        this.listener = listener;
+    }
+
+    public interface OnRatingClickListener {
+        void onRatingClick(Valoracion valoracion);
     }
 
     @NonNull
@@ -31,15 +37,22 @@ public class ValoracionAdapter extends RecyclerView.Adapter<ValoracionAdapter.Va
 
     @Override
     public void onBindViewHolder(@NonNull ValoracionViewHolder holder, int position) {
-        Valoracion val = valoraciones.get(position);
-        holder.usernameTextView.setText(val.getUsername());
-        holder.valoracionTextView.setText(val.getValoracion());
+        Valoracion valoracion = valoraciones.get(position);
+        holder.usernameText.setText(valoracion.getUsername());
+        holder.dateText.setText(valoracion.getDate());
+        holder.ratingText.setText(valoracion.getValoracion());
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onRatingClick(valoracion);
+            }
+        });
 
         // Mostrar fecha al mantener pulsado
-        holder.itemView.setOnLongClickListener(v -> {
-            Toast.makeText(context, context.getString(R.string.str_date) + val.getDate(), Toast.LENGTH_SHORT).show();
-            return true;
-        });
+        // holder.itemView.setOnLongClickListener(v -> {
+        //     Toast.makeText(context, context.getString(R.string.str_date) + valoracion.getDate(), Toast.LENGTH_SHORT).show();
+        //     return true;
+        // });
     }
 
     @Override
@@ -48,12 +61,13 @@ public class ValoracionAdapter extends RecyclerView.Adapter<ValoracionAdapter.Va
     }
 
     static class ValoracionViewHolder extends RecyclerView.ViewHolder {
-        TextView usernameTextView, valoracionTextView;
+        TextView usernameText, dateText, ratingText;
 
         public ValoracionViewHolder(@NonNull View itemView) {
             super(itemView);
-            usernameTextView = itemView.findViewById(R.id.usernameTextView);
-            valoracionTextView = itemView.findViewById(R.id.valoracionTextView);
+            usernameText = itemView.findViewById(R.id.usernameText);
+            dateText = itemView.findViewById(R.id.dateText);
+            ratingText = itemView.findViewById(R.id.ratingText);
         }
     }
 }
