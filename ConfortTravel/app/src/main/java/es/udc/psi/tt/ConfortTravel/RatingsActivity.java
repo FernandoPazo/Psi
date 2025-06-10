@@ -2,6 +2,8 @@ package es.udc.psi.tt.ConfortTravel;
 
 import android.os.Bundle;
 import android.content.Intent;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +23,7 @@ public class RatingsActivity extends AppCompatActivity implements ValoracionAdap
     private RecyclerView recyclerViewRatings;
     private ValoracionAdapter adapter;
     private List<Valoracion> ratingsList;
+    private View loadingLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,10 +43,17 @@ public class RatingsActivity extends AppCompatActivity implements ValoracionAdap
         adapter = new ValoracionAdapter(ratingsList, this, this);
         recyclerViewRatings.setAdapter(adapter);
 
+        //Inicializar ProgressBar
+        loadingLayout = findViewById(R.id.loadingLayout);
+
         //Cargar datos
         loadRatings();
     }
     private void loadRatings() {
+
+        loadingLayout.setVisibility(View.VISIBLE);
+        recyclerViewRatings.setVisibility(View.GONE);
+
         FirebaseDatabase.getInstance().getReference(getString(R.string.firebase_sensor_data))
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -63,11 +73,15 @@ public class RatingsActivity extends AppCompatActivity implements ValoracionAdap
                             }
                         }
                         adapter.notifyDataSetChanged();
+                        loadingLayout.setVisibility(View.GONE);
+                        recyclerViewRatings.setVisibility(View.VISIBLE);
                     }
 
                     @Override
                     public void onCancelled(DatabaseError error) {
                         Toast.makeText(RatingsActivity.this, getString(R.string.err_valoration_load), Toast.LENGTH_SHORT).show();
+                        loadingLayout.setVisibility(View.GONE);
+                        recyclerViewRatings.setVisibility(View.VISIBLE);
                     }
                 });
     }
