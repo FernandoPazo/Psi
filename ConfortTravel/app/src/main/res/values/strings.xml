@@ -1,16 +1,16 @@
 <resources>
     <string name="app_name">ConfortTravel</string>
-    <string name="str_start_iner">Activar inerciales</string>
+    <string name="str_start_iner">Activar medición</string>
     <string name="waiting_for_accelerometer">Esperando datos del acelerómetro…</string>
-    <string name="str_save_data">Guardar datos en Firebase</string>
+    <string name="str_save_data">Guardar valoración</string>
     <string name="save_data_Firebase">Datos guardados correctamente en Firebase</string>
     <string name="save_data_error">Error al guardar: </string>
     <string name="no_data_error">No hay datos disponibles para guardar</string>
     <string name="data_gathering">ConfortManager está recogiendo los datos del sensor.</string>
     <string name="data_paused">ConfortManager está apagado y la medición pausada.</string>
     <string name="measuring">Realizando medición.</string>
-    <string name="notification_channel_foreground_name">channel_FN1</string>
-    <string name="notification_channel_foreground_desc">Canal de para la notificación foreground de medición.</string>
+    <string name="notification_channel_foreground_name" translatable="false">channel_FN1</string>
+    <string name="notification_channel_foreground_desc">Canal para la notificación foreground de medición.</string>
     <string name="accelerometer">Acelerómetro</string>
     <string name="str_pause">Pausar</string>
     <string name="str_resume">Reanudar</string>
@@ -20,10 +20,10 @@
     <string name="gyroscope">Giroscopio</string>
     <string name="waiting_for_gyroscope">Esperando datos del giroscopio…</string>
 
-    <string name="stop_reading">Lectura detenida.</string>
+    <string name="stop_reading">Medición detenida.</string>
     <string name="str_settings">Ajustes</string>
     <string name="measurements">Mediciones.</string>
-    <string name="measure_each_6s">Actualización cada 6s</string>
+    <string name="measure_each_6s">Actualización cada 1s</string>
     <string name="str_valorate">Escribe una valoración...</string>
     <string name="str_int_valorate">Introduce una valoración para esta medición:</string>
     <string name="str_cancel">Cancelar</string>
@@ -36,18 +36,21 @@
     <string name="str_graph_user">Usuario: %1$s</string>
     <string name="str_graph_date">Fecha: %1$s</string>
     <string name="str_graph_error">Error al cargar las mediciones</string>
+    <string name="username_prefs">Nombre de Usuario</string>
+    <string name="theme_prefs">Tema</string>
+    <string name="write_usename_prefs">Escribe tu nombre:</string>
 
     <!-- Referencias a la base de datos de Firebase -->
-    <string name="firebase_sensor_data">sensor_data</string>
-    <string name="firebase_info">info</string>
-    <string name="firebase_username">username</string>
-    <string name="firebase_valoracion">valoracion</string>
-    <string name="firebase_date">date</string>
-    <string name="firebase_accelerometer_data">accelerometer_data</string>
-    <string name="firebase_reading">reading</string>
-    <string name="firebase_measurement">Measurement</string>
+    <string name="firebase_sensor_data" translatable="false">sensor_data</string>
+    <string name="firebase_info" translatable="false">info</string>
+    <string name="firebase_username" translatable="false">username</string>
+    <string name="firebase_valoracion" translatable="false">valoracion</string>
+    <string name="firebase_date" translatable="false">date</string>
+    <string name="firebase_accelerometer_data" translatable="false">accelerometer_data</string>
+    <string name="firebase_reading" translatable="false">reading</string>
+    <string name="firebase_measurement" translatable="false">Measurement</string>
 
-    <string name="dialog_graph_tag">GraphDialog</string>
+    <string name="dialog_graph_tag" translatable="false">GraphDialog</string>
 
     <string-array name="theme_names">
         <item>Claro</item>

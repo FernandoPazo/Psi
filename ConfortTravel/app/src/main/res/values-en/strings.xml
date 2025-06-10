@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ConfortTravel</string>
+    <string name="str_start_iner">"Activate measurement "</string>
+    <string name="waiting_for_accelerometer">Waiting for accelerometer data...</string>
+    <string name="str_save_data">Save Rating</string>
+    <string name="save_data_Firebase">Data saved correctly</string>
+    <string name="save_data_error">Error while saving:</string>
+    <string name="no_data_error">No data to save</string>
+    <string name="data_gathering">ConfortManager is gathering data from the sensor.</string>
+    <string name="data_paused">ConfortManager is off.</string>
+    <string name="measuring">Measuring.</string>
+    <string name="notification_channel_foreground_desc">Foreground measuring notification channel.</string>
+    <string name="accelerometer">Accelerometer</string>
+    <string name="str_pause">Pause</string>
+    <string name="str_resume">Resume</string>
+    <string name="str_save">Save data</string>
+    <string name="str_ratings">Ratings</string>
+    <string name="gyroscope">Gyroscope</string>
+    <string name="waiting_for_gyroscope">Waiting for gyroscope data...</string>
+    <string name="stop_reading">Measurement stopped.</string>
+    <string name="str_settings">Settings</string>
+    <string name="measurements">Measurements.</string>
+    <string name="measure_each_6s">Update each 1s</string>
+    <string name="str_valorate">Write a rating...</string>
+    <string name="str_int_valorate">Set a rating for this measurement:</string>
+    <string name="str_cancel">Cancel</string>
+    <string name="err_valoration_load">Error while loading ratings</string>
+    <string name="str_date">Date:</string>
+    <string name="loading_ratings">Loading ratings...</string>
+    <string name="str_graph_title">Measurement Details</string>
+    <string name="str_graph_user">User: %1$s</string>
+    <string name="str_graph_date">Date: %1$s</string>
+    <string name="str_graph_error">Error while loading ratings</string>
+
+    <string-array name="theme_names">
+        <item>Light</item>
+        <item>Dark</item>
+        <item>System default</item>
+    </string-array>
+    <string-array name="theme_values">
+        <item>light</item>
+        <item>dark</item>
+        <item>system</item>
+    </string-array>
+    <string name="username_prefs">Username</string>
+    <string name="theme_prefs">Theme</string>
+    <string name="write_usename_prefs">Write your username:</string>
+
+</resources>

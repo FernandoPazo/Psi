@@ -1,21 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <SwitchPreferenceCompat
-        android:key="example_switch"
-        android:title="Activar algo"
-        android:summary="Esto activa una opción"
-        android:defaultValue="false" />
-
     <EditTextPreference
         android:key="username"
-        android:title="Nombre de usuario"
-        android:dialogTitle="Escribe tu nombre"
+        android:title="@string/username_prefs"
+        android:dialogTitle="@string/write_usename_prefs"
         android:defaultValue="Anónimo" />
 
     <ListPreference
         android:key="theme"
-        android:title="Tema"
+        android:title="@string/theme_prefs"
         android:entries="@array/theme_names"
         android:entryValues="@array/theme_values"
         android:defaultValue="light" />
