@@ -16,10 +16,16 @@ public class ValoracionAdapter extends RecyclerView.Adapter<ValoracionAdapter.Va
 
     private final List<Valoracion> valoraciones;
     private final Context context;
+    private final OnRatingClickListener listener;
 
-    public ValoracionAdapter(List<Valoracion> valoraciones, Context context) {
+    public ValoracionAdapter(List<Valoracion> valoraciones, Context context, OnRatingClickListener listener) {
         this.valoraciones = valoraciones;
         this.context = context;
+        this.listener = listener;
+    }
+
+    public interface OnRatingClickListener {
+        void onRatingClick(Valoracion valoracion);
     }
 
     @NonNull
@@ -35,6 +41,12 @@ public class ValoracionAdapter extends RecyclerView.Adapter<ValoracionAdapter.Va
         holder.usernameText.setText(valoracion.getUsername());
         holder.dateText.setText(valoracion.getDate());
         holder.ratingText.setText(valoracion.getValoracion());
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onRatingClick(valoracion);
+            }
+        });
 
         // Mostrar fecha al mantener pulsado
         // holder.itemView.setOnLongClickListener(v -> {

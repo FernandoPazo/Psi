@@ -1,6 +1,7 @@
 package es.udc.psi.tt.ConfortTravel;
 
 import android.os.Bundle;
+import android.content.Intent;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,7 +17,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RatingsActivity extends AppCompatActivity {
+public class RatingsActivity extends AppCompatActivity implements ValoracionAdapter.OnRatingClickListener {
     private RecyclerView recyclerViewRatings;
     private ValoracionAdapter adapter;
     private List<Valoracion> ratingsList;
@@ -36,7 +37,7 @@ public class RatingsActivity extends AppCompatActivity {
         recyclerViewRatings = findViewById(R.id.recyclerViewRatings);
         recyclerViewRatings.setLayoutManager(new LinearLayoutManager(this));
         ratingsList = new ArrayList<>();
-        adapter = new ValoracionAdapter(ratingsList, this);
+        adapter = new ValoracionAdapter(ratingsList, this, this);
         recyclerViewRatings.setAdapter(adapter);
 
         //Cargar datos
@@ -57,8 +58,8 @@ public class RatingsActivity extends AppCompatActivity {
                             Object dateObj = infoSnapshot.child("date").getValue();
                             String date = dateObj != null ? dateObj.toString() : null;
 
-                            if (username != null && valoracion != null && date != null) {
-                                ratingsList.add(new Valoracion(username, valoracion, date));
+                            if (username != null && valoracion != null && date != null && session.getKey() != null) {
+                                ratingsList.add(new Valoracion(username, valoracion, date, session.getKey()));
                             }
                         }
                         adapter.notifyDataSetChanged();
@@ -75,5 +76,16 @@ public class RatingsActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+
+    @Override
+    public void onRatingClick(Valoracion valoracion) {
+        GraphDialog dialog = GraphDialog.newInstance(
+            valoracion.getSessionId(),
+            valoracion.getUsername(),
+            valoracion.getDate()
+        );
+        dialog.show(getSupportFragmentManager(), "GraphDialog");
     }
 }
