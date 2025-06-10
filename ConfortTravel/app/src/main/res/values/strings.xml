@@ -30,6 +30,24 @@
     <string name="err_valoration_load">Error cargando valoraciones</string>
     <string name="str_date">"Fecha: "</string>
 
+    <!-- strings para los detalles de las valoraciones -->
+    <string name="str_graph_title">Detalles de la Medición</string>
+    <string name="str_graph_user">Usuario: %1$s</string>
+    <string name="str_graph_date">Fecha: %1$s</string>
+    <string name="str_graph_error">Error al cargar las mediciones</string>
+
+    <!-- Referencias a la base de datos de Firebase -->
+    <string name="firebase_sensor_data">sensor_data</string>
+    <string name="firebase_info">info</string>
+    <string name="firebase_username">username</string>
+    <string name="firebase_valoracion">valoracion</string>
+    <string name="firebase_date">date</string>
+    <string name="firebase_accelerometer_data">accelerometer_data</string>
+    <string name="firebase_reading">reading</string>
+    <string name="firebase_measurement">Measurement</string>
+
+    <string name="dialog_graph_tag">GraphDialog</string>
+
     <string-array name="theme_names">
         <item>Claro</item>
         <item>Oscuro</item>

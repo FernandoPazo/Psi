@@ -71,9 +71,9 @@ public class GraphDialog extends DialogFragment {
         // Configurar título
         String username = getArguments().getString(ARG_USERNAME);
         String date = getArguments().getString(ARG_DATE);
-        titleText.setText("Detalles de la Medición");
-        usernameText.setText("Usuario: " + username);
-        dateText.setText("Fecha: " + date);
+        titleText.setText(R.string.str_graph_title);
+        usernameText.setText(String.format(getString(R.string.str_graph_user), username));
+        dateText.setText(String.format(getString(R.string.str_graph_date), date));
 
         closeButton.setOnClickListener(v -> dismiss());
 
@@ -88,7 +88,7 @@ public class GraphDialog extends DialogFragment {
     }
 
     private void initializeLineChart(LineChart lineChart) {
-        LineDataSet dataSet = new LineDataSet(new ArrayList<>(), "Mediciones");
+        LineDataSet dataSet = new LineDataSet(new ArrayList<>(), getString(R.string.measurements));
         dataSet.setColor(getResources().getColor(android.R.color.holo_blue_dark));
         dataSet.setLineWidth(2f);
         dataSet.setDrawCircles(false);
@@ -102,11 +102,11 @@ public class GraphDialog extends DialogFragment {
     }
 
     private void loadGraphData(String sessionId, LineChart lineChart) {
-        FirebaseDatabase.getInstance().getReference("sensor_data")
+        FirebaseDatabase.getInstance().getReference(getString(R.string.firebase_sensor_data))
                 .child(sessionId)
-                .child("accelerometer_data")
-                .child("reading")
-                .child("Measurement")
+                .child(getString(R.string.firebase_accelerometer_data))
+                .child(getString(R.string.firebase_reading))
+                .child(getString(R.string.firebase_measurement))
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
@@ -128,7 +128,7 @@ public class GraphDialog extends DialogFragment {
 
                     @Override
                     public void onCancelled(DatabaseError error) {
-                        Toast.makeText(requireContext(), "Error al cargar los datos", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), getString(R.string.str_graph_error), Toast.LENGTH_SHORT).show();
                     }
                 });
     }

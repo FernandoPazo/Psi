@@ -21,7 +21,7 @@ public class RatingsActivity extends AppCompatActivity implements ValoracionAdap
     private RecyclerView recyclerViewRatings;
     private ValoracionAdapter adapter;
     private List<Valoracion> ratingsList;
-        
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,18 +44,18 @@ public class RatingsActivity extends AppCompatActivity implements ValoracionAdap
         loadRatings();
     }
     private void loadRatings() {
-        FirebaseDatabase.getInstance().getReference("sensor_data")
+        FirebaseDatabase.getInstance().getReference(getString(R.string.firebase_sensor_data))
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
                         ratingsList.clear();
                         for (DataSnapshot session : snapshot.getChildren()) {
-                            DataSnapshot infoSnapshot = session.child("info");
+                            DataSnapshot infoSnapshot = session.child(getString(R.string.firebase_info));
 
-                            String username = infoSnapshot.child("username").getValue(String.class);
-                            Object valoracionObj = infoSnapshot.child("valoracion").getValue();
+                            String username = infoSnapshot.child(getString(R.string.firebase_username)).getValue(String.class);
+                            Object valoracionObj = infoSnapshot.child(getString(R.string.firebase_valoracion)).getValue();
                             String valoracion = valoracionObj != null ? valoracionObj.toString() : null;
-                            Object dateObj = infoSnapshot.child("date").getValue();
+                            Object dateObj = infoSnapshot.child(getString(R.string.firebase_date)).getValue();
                             String date = dateObj != null ? dateObj.toString() : null;
 
                             if (username != null && valoracion != null && date != null && session.getKey() != null) {
@@ -67,7 +67,7 @@ public class RatingsActivity extends AppCompatActivity implements ValoracionAdap
 
                     @Override
                     public void onCancelled(DatabaseError error) {
-                        Toast.makeText(RatingsActivity.this, "Error al cargar las valoraciones", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RatingsActivity.this, getString(R.string.err_valoration_load), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -86,6 +86,6 @@ public class RatingsActivity extends AppCompatActivity implements ValoracionAdap
             valoracion.getUsername(),
             valoracion.getDate()
         );
-        dialog.show(getSupportFragmentManager(), "GraphDialog");
+        dialog.show(getSupportFragmentManager(), getString(R.string.dialog_graph_tag));
     }
 }
